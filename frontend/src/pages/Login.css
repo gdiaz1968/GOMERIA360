@@ -1,13 +1,27 @@
 
+/* =========================================
+   GOMERIA360 - LOGIN RESPONSIVE
+   ========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+/* CONTENEDOR PRINCIPAL */
+
 .login-container {
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   background: #101827;
-  font-family: Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
+
+/* TARJETA DE LOGIN */
 
 .login-card {
   width: 100%;
@@ -21,6 +35,8 @@
   gap: 12px;
 }
 
+/* LOGO */
+
 .login-logo {
   width: 65px;
   height: 65px;
@@ -28,24 +44,33 @@
   display: grid;
   place-items: center;
   background: #e64b35;
-  color: white;
+  color: #ffffff;
   border-radius: 14px;
   font-size: 23px;
   font-weight: bold;
+  flex-shrink: 0;
 }
+
+/* TITULO */
 
 .login-card h1 {
   margin: 5px 0 0;
   text-align: center;
   color: #172235;
   font-size: 25px;
+  font-weight: 700;
 }
+
+/* SUBTITULO */
 
 .login-subtitle {
   margin: 0 0 20px;
   text-align: center;
   color: #718096;
+  font-size: 14px;
 }
+
+/* ETIQUETAS */
 
 .login-card label {
   color: #263449;
@@ -53,29 +78,49 @@
   font-size: 14px;
 }
 
+/* CAMPOS */
+
 .login-card input {
   width: 100%;
-  box-sizing: border-box;
+  min-width: 0;
   padding: 13px;
   border: 1px solid #cbd5e0;
   border-radius: 7px;
-  font-size: 15px;
+  background: #ffffff;
+  color: #172235;
+  font-size: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .login-card input:focus {
-  outline: 2px solid #e64b35;
-  border-color: transparent;
+  outline: none;
+  border-color: #e64b35;
+  box-shadow: 0 0 0 3px rgba(230, 75, 53, 0.15);
 }
 
+/* BOTON INGRESAR */
+
 .login-card button {
+  width: 100%;
+  min-height: 46px;
   margin-top: 12px;
   padding: 14px;
   border: none;
   border-radius: 7px;
   background: #e64b35;
-  color: white;
+  color: #ffffff;
+  font-size: 15px;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.login-card button:hover:not(:disabled) {
+  background: #c93b28;
+}
+
+.login-card button:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .login-card button:disabled {
@@ -83,16 +128,141 @@
   cursor: wait;
 }
 
+/* MENSAJE DE ERROR */
+
 .login-error {
   padding: 10px;
   color: #a42626;
   background: #fde8e8;
+  border: 1px solid #f5bcbc;
   border-radius: 6px;
   font-size: 14px;
+  line-height: 1.4;
 }
+
+/* PIE DEL LOGIN */
 
 .login-card small {
   margin-top: 15px;
   text-align: center;
   color: #718096;
+  font-size: 12px;
+}
+
+/* =========================================
+   TABLETS Y CELULARES
+   Hasta 768px
+   ========================================= */
+
+@media (max-width: 768px) {
+  .login-container {
+    padding: 18px;
+  }
+
+  .login-card {
+    max-width: 400px;
+    padding: 30px 25px;
+  }
+}
+
+/* =========================================
+   CELULARES
+   Hasta 480px
+   ========================================= */
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 16px;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 25px 20px;
+    border-radius: 12px;
+  }
+
+  .login-logo {
+    width: 58px;
+    height: 58px;
+    font-size: 21px;
+  }
+
+  .login-card h1 {
+    font-size: 22px;
+  }
+
+  .login-subtitle {
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .login-card label {
+    font-size: 14px;
+  }
+
+  .login-card input {
+    min-height: 46px;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .login-card button {
+    min-height: 48px;
+    font-size: 15px;
+  }
+}
+
+/* =========================================
+   CELULARES CON POCA ALTURA
+   Orientación horizontal
+   ========================================= */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .login-container {
+    align-items: flex-start;
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .login-card {
+    padding: 20px;
+  }
+
+  .login-logo {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+
+  .login-card h1 {
+    font-size: 21px;
+  }
+
+  .login-subtitle {
+    margin-bottom: 8px;
+  }
+
+  .login-card {
+    gap: 8px;
+  }
+
+  .login-card button {
+    margin-top: 5px;
+  }
+
+  .login-card small {
+    margin-top: 5px;
+  }
+}
+
+/* =========================================
+   ACCESIBILIDAD
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card input,
+  .login-card button {
+    transition: none;
+  }
 }

@@ -1,5 +1,5 @@
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3032";
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 export async function iniciarSesion(usuario, password) {
   const respuesta = await fetch(`${API_URL}/api/auth/login`, {

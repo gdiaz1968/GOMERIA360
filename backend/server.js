@@ -4,23 +4,27 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-const pool = require("./db");
+const path = require("path");
+const fs = require("fs");
 
+const pool = require("./db");
 const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3032;
 
+// Directorio del frontend compilado por Vite
+const frontendPath = path.join(__dirname, "../frontend/dist");
+
+// Middlewares
 app.use(helmet());
-
 app.use(cors());
-
 app.use(express.json({ limit: "100kb" }));
 
-// Rutas de autenticacion
+// RUTAS DE AUTENTICACION
 app.use("/api/auth", authRoutes);
 
-// Verificacion de servidor y PostgreSQL
+// VERIFICACION DEL BACKEND Y BASE DE DATOS
 app.get("/api/health", async (req, res) => {
   try {
     const resultado = await pool.query(`
@@ -48,7 +52,40 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-// Manejo de rutas inexistentes
+// SERVIR FRONTEND REACT
+if (fs.existsSync(frontendPath)) {
+  app.use(express.static(frontendPath));
+  console.log("Frontend React encontrado:", frontendPath);
+} else {
+  console.warn("ADVERTENCIA: No se encontro frontend/dist");
+}
+
+// RUTAS API NO ENCONTRADAS
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    ok: false,
+    mensaje: "Ruta API no encontrada"
+  });
+});
+
+// FALLBACK PARA REACT
+app.use((req, res, next) => {
+  if (req.method !== "GET" || !req.accepts("html")) {
+    return next();
+  }
+
+  const indexPath = path.join(frontendPath, "index.html");
+
+  if (!fs.existsSync(indexPath)) {
+    return res.status(404).send(
+      "Frontend no compilado. Ejecutar npm run build."
+    );
+  }
+
+  res.sendFile(indexPath);
+});
+
+// ERROR 404 GENERAL
 app.use((req, res) => {
   res.status(404).json({
     ok: false,
@@ -57,5 +94,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`GOMERIA360 API ejecutandose en puerto ${PORT}`);
+  console.log(`GOMERIA360 ejecutandose en puerto ${PORT}`);
 });
