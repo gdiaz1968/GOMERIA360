@@ -9,6 +9,7 @@ const fs = require("fs");
 
 const pool = require("./db");
 const authRoutes = require("./routes/authRoutes");
+const visitasRoutes = require("./routes/visitasRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3032;
@@ -23,6 +24,9 @@ app.use(express.json({ limit: "100kb" }));
 
 // RUTAS DE AUTENTICACION
 app.use("/api/auth", authRoutes);
+
+// RUTAS DE VISITAS Y TRABAJOS
+app.use("/api/visitas", visitasRoutes);
 
 // VERIFICACION DEL BACKEND Y BASE DE DATOS
 app.get("/api/health", async (req, res) => {
