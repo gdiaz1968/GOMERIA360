@@ -15,42 +15,59 @@ const {
 
 const router = express.Router();
 
-const todosLosRoles = [
-  "DUENA",
-  "OPERADOR_LOCAL",
-  "OPERADOR_MOVIL"
+const TODOS_LOS_ROLES = [
+  "ADMINISTRADOR",
+  "OPERADOR"
 ];
 
-// Todas las rutas requieren autenticación.
+// =====================================================
+// TODAS LAS RUTAS REQUIEREN AUTENTICACIÓN
+// =====================================================
+
 router.use(verificarToken);
 
-// Catálogo de trabajos.
+// =====================================================
+// CATÁLOGO DE TRABAJOS
+// ADMINISTRADOR Y OPERADOR
+// =====================================================
+
 router.get(
   "/tipos-trabajo",
-  permitirRoles(...todosLosRoles),
+  permitirRoles(...TODOS_LOS_ROLES),
   obtenerTiposTrabajo
 );
 
-// Dashboard exclusivo de la dueña.
+// =====================================================
+// DASHBOARD
+// EXCLUSIVO ADMINISTRADOR
+// =====================================================
+
 router.get(
   "/dashboard/resumen",
-  permitirRoles("DUENA"),
+  permitirRoles("ADMINISTRADOR"),
   obtenerResumenDashboard
 );
 
-// Registrar visita.
+// =====================================================
+// REGISTRAR VISITA
+// ADMINISTRADOR Y OPERADOR
+// =====================================================
+
 router.post(
   "/",
-  permitirRoles(...todosLosRoles),
+  permitirRoles(...TODOS_LOS_ROLES),
   crearVisita
 );
 
-// Consultar visitas.
-// El servicio limita automáticamente las consultas
-// de los operadores a sus propias visitas.
+// =====================================================
+// CONSULTAR VISITAS
+// El servicio determina qué registros puede consultar
+// cada usuario.
+// =====================================================
+
 router.get(
   "/",
-  permitirRoles(...todosLosRoles),
+  permitirRoles(...TODOS_LOS_ROLES),
   listarVisitas
 );
 
