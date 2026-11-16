@@ -1,0 +1,276 @@
+
+.nueva-visita {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  color: #1e293b;
+}
+
+.nueva-visita-encabezado {
+  margin-bottom: 24px;
+}
+
+.nueva-visita-encabezado h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.nueva-visita-encabezado p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.visita-seccion {
+  margin-bottom: 22px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.visita-seccion h2 {
+  margin: 0 0 20px;
+  color: #0f172a;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.visita-seccion p {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.visita-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.visita-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.visita-campo label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.visita-campo input,
+.visita-campo select,
+.visita-campo textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.visita-campo textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.visita-campo input:focus,
+.visita-campo select:focus,
+.visita-campo textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.visita-seccion-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.visita-seccion-titulo h2 {
+  margin-bottom: 5px;
+}
+
+.visita-seccion-titulo p {
+  margin: 0;
+}
+
+.visita-trabajo {
+  margin-bottom: 16px;
+  padding: 20px;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.visita-trabajo-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.visita-trabajo-titulo h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #1e40af;
+}
+
+.visita-boton-secundario,
+.visita-boton-eliminar,
+.visita-boton-guardar {
+  min-height: 42px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.visita-boton-secundario {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.visita-boton-secundario:hover {
+  background: #dbeafe;
+}
+
+.visita-boton-eliminar {
+  min-height: 34px;
+  padding: 7px 12px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.visita-boton-eliminar:hover {
+  background: #fecaca;
+}
+
+.visita-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.visita-total span {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.visita-total strong {
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.visita-alerta {
+  margin-bottom: 18px;
+  padding: 13px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.visita-error {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.visita-exito {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
+.visita-acciones {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 24px;
+}
+
+.visita-boton-guardar {
+  min-width: 190px;
+  min-height: 48px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.visita-boton-guardar:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.visita-boton-guardar:disabled,
+.visita-boton-secundario:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .nueva-visita {
+    padding: 14px;
+  }
+
+  .nueva-visita-encabezado h1 {
+    font-size: 23px;
+  }
+
+  .visita-seccion {
+    padding: 17px;
+  }
+
+  .visita-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .visita-seccion-titulo {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .visita-boton-secundario {
+    width: 100%;
+  }
+
+  .visita-trabajo {
+    padding: 15px;
+  }
+
+  .visita-total {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .visita-acciones {
+    justify-content: stretch;
+  }
+
+  .visita-boton-guardar {
+    width: 100%;
+  }
+}

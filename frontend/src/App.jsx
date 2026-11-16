@@ -17,11 +17,17 @@ import {
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import NuevaVisita from "./pages/NuevaVisita";
 import { obtenerUsuario, cerrarSesion } from "./services/authService";
 import "./App.css";
+import CambiarPassword from "./pages/CambiarPassword";
+
+// =====================================================
+// MENÚS SEGÚN ROL
+// =====================================================
 
 const menus = {
-  DUENA: [
+  ADMINISTRADOR: [
     { id: "panel", label: "Panel principal", icon: LayoutDashboard },
     { id: "nueva-visita", label: "Nueva visita", icon: PlusCircle },
     { id: "historial", label: "Historial de visitas", icon: ClipboardList },
@@ -31,16 +37,15 @@ const menus = {
     { id: "configuracion", label: "Configuración", icon: Settings },
   ],
 
-  OPERADOR_LOCAL: [
-    { id: "nueva-visita", label: "Nueva visita", icon: PlusCircle },
-    { id: "historial", label: "Mis visitas", icon: ClipboardList },
-  ],
-
-  OPERADOR_MOVIL: [
+  OPERADOR: [
     { id: "nueva-visita", label: "Nueva visita", icon: PlusCircle },
     { id: "historial", label: "Mis visitas", icon: ClipboardList },
   ],
 };
+
+// =====================================================
+// NOMBRES DE LOS MÓDULOS
+// =====================================================
 
 const nombresModulos = {
   panel: "Panel principal",
@@ -52,49 +57,115 @@ const nombresModulos = {
   configuracion: "Configuración",
 };
 
+// =====================================================
+// APLICACIÓN PRINCIPAL
+// =====================================================
+
 function App() {
   const [usuario, setUsuario] = useState(obtenerUsuario);
 
-  const [moduloActivo, setModuloActivo] = useState(
-    usuario?.rol === "DUENA" ? "panel" : "nueva-visita"
-  );
+  const [moduloActivo, setModuloActivo] = useState(() => {
+    const usuarioActual = obtenerUsuario();
+
+    return usuarioActual?.rol === "ADMINISTRADOR"
+      ? "panel"
+      : "nueva-visita";
+  });
 
   const [menuAbierto, setMenuAbierto] = useState(false);
 
-  function handleLogin(datosUsuario) {
-    setUsuario(datosUsuario);
+  // ===================================================
+  // LOGIN
+  // ===================================================
 
-    setModuloActivo(
-      datosUsuario.rol === "DUENA" ? "panel" : "nueva-visita"
-    );
-  }
+  function handleLogin(datosUsuario) {
+  setUsuario(datosUsuario);
+
+  setModuloActivo(
+    datosUsuario.rol === "ADMINISTRADOR"
+      ? "panel"
+      : "nueva-visita"
+  );
+
+  setMenuAbierto(false);
+}
+
+  // ===================================================
+  // CERRAR SESIÓN
+  // ===================================================
 
   function handleLogout() {
     cerrarSesion();
     setUsuario(null);
     setMenuAbierto(false);
+    setModuloActivo("nueva-visita");
   }
 
+  // ===================================================
+  // NAVEGACIÓN
+  // ===================================================
+
   function navegar(id) {
+    // Verificar que el módulo pertenezca al menú del usuario.
+    const tienePermiso = menus[usuario?.rol]?.some(
+      (item) => item.id === id
+    );
+
+    if (!tienePermiso) {
+      return;
+    }
+
     setModuloActivo(id);
     setMenuAbierto(false);
   }
 
+  // ===================================================
+  // PANTALLA DE LOGIN
+  // ===================================================
+
   if (!usuario) {
-    return <Login onLogin={handleLogin} />;
-  }
+  return <Login onLogin={handleLogin} />;
+}
+
+// Cambio obligatorio de contraseña
+if (usuario.debe_cambiar_password) {
+  return (
+    <CambiarPassword
+      usuario={usuario}
+      onPasswordCambiada={(usuarioActualizado) => {
+        setUsuario(usuarioActualizado);
+
+        setModuloActivo(
+          usuarioActualizado.rol === "ADMINISTRADOR"
+            ? "panel"
+            : "nueva-visita"
+        );
+      }}
+      onLogout={handleLogout}
+    />
+  );
+}
+
+  // ===================================================
+  // DATOS DEL USUARIO
+  // ===================================================
 
   const opcionesMenu = menus[usuario.rol] || [];
 
   const nombreRol = {
-    DUENA: "Dueña",
-    OPERADOR_LOCAL: "Operador de gomería",
-    OPERADOR_MOVIL: "Operador móvil",
+    ADMINISTRADOR: "Administrador",
+    OPERADOR: "Operador",
   }[usuario.rol] || usuario.rol;
 
   const IconoModulo =
     opcionesMenu.find((item) => item.id === moduloActivo)?.icon ||
     Construction;
+
+  const esAdministrador = usuario.rol === "ADMINISTRADOR";
+
+  // ===================================================
+  // INTERFAZ PRINCIPAL
+  // ===================================================
 
   return (
     <div className="app-layout">
@@ -110,6 +181,7 @@ function App() {
       <aside className={`sidebar ${menuAbierto ? "sidebar-open" : ""}`}>
 
         <div className="sidebar-brand">
+
           <div className="brand-symbol">
             <Wrench size={29} strokeWidth={2.4} />
           </div>
@@ -125,6 +197,7 @@ function App() {
           >
             <X size={22} />
           </button>
+
         </div>
 
         <div className="sidebar-section-label">
@@ -132,6 +205,7 @@ function App() {
         </div>
 
         <nav className="sidebar-nav">
+
           {opcionesMenu.map((item) => {
             const Icono = item.icon;
 
@@ -148,11 +222,13 @@ function App() {
               </button>
             );
           })}
+
         </nav>
 
         <div className="sidebar-footer">
 
           <div className="user-info">
+
             <div className="user-avatar">
               <CircleUserRound size={30} />
             </div>
@@ -161,8 +237,10 @@ function App() {
               <strong>
                 {usuario.nombre || usuario.usuario}
               </strong>
+
               <span>{nombreRol}</span>
             </div>
+
           </div>
 
           <button
@@ -174,6 +252,7 @@ function App() {
           </button>
 
         </div>
+
       </aside>
 
       <div className="main-area">
@@ -194,6 +273,7 @@ function App() {
 
           <div className="topbar-user">
             <span className="status-dot" />
+
             <span>
               {usuario.nombre || usuario.usuario}
             </span>
@@ -211,14 +291,21 @@ function App() {
 
             <div>
               <h1>{nombresModulos[moduloActivo]}</h1>
-              <p>Gestión de actividades de GOMERIA360</p>
+
+              <p>
+                Gestión de actividades de GOMERIA360
+              </p>
             </div>
 
           </div>
 
-          {moduloActivo === "panel" && usuario.rol === "DUENA" ? (
+          {moduloActivo === "panel" && esAdministrador ? (
 
             <Dashboard />
+
+          ) : moduloActivo === "nueva-visita" ? (
+
+            <NuevaVisita />
 
           ) : (
 
@@ -228,7 +315,9 @@ function App() {
                 <Construction size={34} />
               </div>
 
-              <h2>{nombresModulos[moduloActivo]}</h2>
+              <h2>
+                {nombresModulos[moduloActivo] || "Módulo"}
+              </h2>
 
               <p>
                 Esta pantalla forma parte del próximo desarrollo.
@@ -251,6 +340,7 @@ function App() {
         </footer>
 
       </div>
+
     </div>
   );
 }

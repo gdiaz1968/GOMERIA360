@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   CalendarDays,
   ClipboardList,
@@ -16,6 +16,10 @@ import "./Dashboard.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
+// =====================================================
+// FECHA LOCAL
+// =====================================================
+
 function fechaLocal() {
   const ahora = new Date();
   const anio = ahora.getFullYear();
@@ -24,6 +28,10 @@ function fechaLocal() {
 
   return `${anio}-${mes}-${dia}`;
 }
+
+// =====================================================
+// FORMATO MONETARIO
+// =====================================================
 
 function moneda(valor) {
   const numero = Number(valor || 0);
@@ -36,11 +44,18 @@ function moneda(valor) {
   }).format(numero);
 }
 
+// =====================================================
+// ROLES
+// =====================================================
+
 const roles = {
-  DUENA: "Dueña",
-  OPERADOR_LOCAL: "Operador de gomería",
-  OPERADOR_MOVIL: "Operador móvil"
+  ADMINISTRADOR: "Administrador",
+  OPERADOR: "Operador"
 };
+
+// =====================================================
+// COMPONENTE INDICADOR
+// =====================================================
 
 function Indicador({ titulo, valor, icono: Icono, variante }) {
   return (
@@ -49,12 +64,17 @@ function Indicador({ titulo, valor, icono: Icono, variante }) {
         <span>{titulo}</span>
         <strong>{valor}</strong>
       </div>
+
       <div className="dashboard-card-icon">
         <Icono size={23} />
       </div>
     </article>
   );
 }
+
+// =====================================================
+// RESUMEN POR UBICACIÓN
+// =====================================================
 
 function ResumenUbicacion({ ubicacion, datos }) {
   const esMovil = ubicacion === "MOVIL";
@@ -65,9 +85,12 @@ function ResumenUbicacion({ ubicacion, datos }) {
         <div className={`location-icon ${esMovil ? "mobile" : ""}`}>
           {esMovil ? <Truck size={23} /> : <Store size={23} />}
         </div>
+
         <div>
           <h3>{esMovil ? "Unidad móvil" : "Gomería"}</h3>
-          <span>{esMovil ? "Trabajos en ruta" : "Trabajos en el local"}</span>
+          <span>
+            {esMovil ? "Trabajos en ruta" : "Trabajos en el local"}
+          </span>
         </div>
       </div>
 
@@ -76,6 +99,7 @@ function ResumenUbicacion({ ubicacion, datos }) {
           <span>Visitas</span>
           <strong>{datos?.visitas ?? 0}</strong>
         </div>
+
         <div>
           <span>Trabajos</span>
           <strong>{datos?.trabajos ?? 0}</strong>
@@ -94,6 +118,7 @@ function ResumenUbicacion({ ubicacion, datos }) {
             {moneda(datos?.total_cobrado)}
           </strong>
         </div>
+
         <div>
           <span>Pendiente</span>
           <strong className="text-warning">
@@ -105,13 +130,21 @@ function ResumenUbicacion({ ubicacion, datos }) {
   );
 }
 
+// =====================================================
+// DASHBOARD
+// =====================================================
+
 export default function Dashboard() {
   const [fecha, setFecha] = useState(fechaLocal);
   const [datos, setDatos] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
-  async function cargarDashboard(fechaConsulta) {
+  // ===================================================
+  // CONSULTAR DASHBOARD
+  // ===================================================
+
+  const cargarDashboard = useCallback(async (fechaConsulta) => {
     setCargando(true);
     setError("");
 
@@ -119,7 +152,9 @@ export default function Dashboard() {
       const token = localStorage.getItem("gomeria360_token");
 
       if (!token) {
-        throw new Error("No se encontró la sesión. Cerrá sesión e ingresá nuevamente.");
+        throw new Error(
+          "No se encontró la sesión. Cerrá sesión e ingresá nuevamente."
+        );
       }
 
       const respuesta = await fetch(
@@ -136,7 +171,8 @@ export default function Dashboard() {
 
       if (!respuesta.ok || !resultado.ok) {
         throw new Error(
-          resultado.mensaje || `Error al consultar el Dashboard (${respuesta.status})`
+          resultado.mensaje ||
+          `Error al consultar el Dashboard (${respuesta.status})`
         );
       }
 
@@ -144,16 +180,32 @@ export default function Dashboard() {
 
     } catch (err) {
       console.error("Error al cargar Dashboard:", err);
+
       setDatos(null);
       setError(err.message || "No se pudo cargar el Dashboard.");
+
     } finally {
       setCargando(false);
     }
-  }
+  }, []);
+
+  // ===================================================
+  // CARGA INICIAL Y CAMBIO DE FECHA
+  // ===================================================
 
   useEffect(() => {
-    cargarDashboard(fecha);
-  }, [fecha]);
+    const temporizador = setTimeout(() => {
+      cargarDashboard(fecha);
+    }, 0);
+
+    return () => {
+      clearTimeout(temporizador);
+    };
+  }, [fecha, cargarDashboard]);
+
+  // ===================================================
+  // DATOS DEL DASHBOARD
+  // ===================================================
 
   const resumen = datos?.resumen || {};
   const ubicaciones = datos?.ubicaciones || [];
@@ -167,8 +219,13 @@ export default function Dashboard() {
     item => item.ubicacion === "MOVIL"
   );
 
+  // ===================================================
+  // INTERFAZ
+  // ===================================================
+
   return (
     <section className="dashboard">
+
       <div className="dashboard-toolbar">
         <div>
           <h2>Resumen de actividad</h2>
@@ -177,12 +234,14 @@ export default function Dashboard() {
 
         <div className="dashboard-date">
           <CalendarDays size={19} />
+
           <input
             type="date"
             value={fecha}
             onChange={event => setFecha(event.target.value)}
             aria-label="Seleccionar fecha del Dashboard"
           />
+
           <button
             type="button"
             onClick={() => cargarDashboard(fecha)}
@@ -190,23 +249,36 @@ export default function Dashboard() {
             title="Actualizar información"
             aria-label="Actualizar información"
           >
-            <RefreshCw size={18} className={cargando ? "spinning" : ""} />
+            <RefreshCw
+              size={18}
+              className={cargando ? "spinning" : ""}
+            />
           </button>
         </div>
       </div>
 
+      {/* ERROR */}
+
       {error && (
         <div className="dashboard-error">
           <AlertCircle size={21} />
+
           <div>
             <strong>No se pudo cargar el Dashboard</strong>
             <p>{error}</p>
-            <button type="button" onClick={() => cargarDashboard(fecha)}>
+
+            <button
+              type="button"
+              onClick={() => cargarDashboard(fecha)}
+              disabled={cargando}
+            >
               Reintentar
             </button>
           </div>
         </div>
       )}
+
+      {/* CARGANDO */}
 
       {cargando && !datos ? (
         <div className="dashboard-loading">
@@ -215,8 +287,12 @@ export default function Dashboard() {
         </div>
       ) : datos ? (
         <>
+
+          {/* INDICADORES GENERALES */}
+
           <div className="dashboard-section-title">
             <h3>Indicadores generales</h3>
+
             <span>
               {fecha.split("-").reverse().join("/")}
             </span>
@@ -229,24 +305,28 @@ export default function Dashboard() {
               icono={ClipboardList}
               variante="blue"
             />
+
             <Indicador
               titulo="Trabajos realizados"
               valor={resumen.trabajos ?? 0}
               icono={Wrench}
               variante="purple"
             />
+
             <Indicador
               titulo="Total registrado"
               valor={moneda(resumen.total_registrado)}
               icono={DollarSign}
               variante="navy"
             />
+
             <Indicador
               titulo="Total cobrado"
               valor={moneda(resumen.total_cobrado)}
               icono={CheckCircle2}
               variante="green"
             />
+
             <Indicador
               titulo="Total pendiente"
               valor={moneda(resumen.total_pendiente)}
@@ -254,6 +334,8 @@ export default function Dashboard() {
               variante="orange"
             />
           </div>
+
+          {/* ACTIVIDAD POR UBICACIÓN */}
 
           <div className="dashboard-section-title">
             <h3>Actividad por ubicación</h3>
@@ -264,16 +346,21 @@ export default function Dashboard() {
               ubicacion="GOMERIA"
               datos={ubicacionGomeria}
             />
+
             <ResumenUbicacion
               ubicacion="MOVIL"
               datos={ubicacionMovil}
             />
           </div>
 
+          {/* ACTIVIDAD POR OPERADOR */}
+
           <div className="dashboard-section-title">
             <div>
               <h3>Actividad por operador</h3>
-              <p>Detalle de visitas, trabajos e importes registrados.</p>
+              <p>
+                Detalle de visitas, trabajos e importes registrados.
+              </p>
             </div>
           </div>
 
@@ -290,6 +377,7 @@ export default function Dashboard() {
                   <th>Pendiente</th>
                 </tr>
               </thead>
+
               <tbody>
                 {operadores.length === 0 ? (
                   <tr>
@@ -305,17 +393,24 @@ export default function Dashboard() {
                           {operador.nombre || operador.usuario}
                         </strong>
                       </td>
+
                       <td>
                         <span className="role-label">
                           {roles[operador.rol] || operador.rol}
                         </span>
                       </td>
+
                       <td>{operador.visitas}</td>
                       <td>{operador.trabajos}</td>
-                      <td>{moneda(operador.total_registrado)}</td>
+
+                      <td>
+                        {moneda(operador.total_registrado)}
+                      </td>
+
                       <td className="text-success">
                         {moneda(operador.total_cobrado)}
                       </td>
+
                       <td className="text-warning">
                         {moneda(operador.total_pendiente)}
                       </td>
@@ -325,12 +420,14 @@ export default function Dashboard() {
               </tbody>
             </table>
           </div>
+
         </>
       ) : !error ? (
         <div className="dashboard-empty-state">
           No hay información disponible para la fecha seleccionada.
         </div>
       ) : null}
+
     </section>
   );
 }

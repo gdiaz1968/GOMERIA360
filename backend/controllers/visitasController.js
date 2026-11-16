@@ -1,10 +1,9 @@
 
 const visitasService = require("../services/visitasService");
 
-const ROLES = [
-  "DUENA",
-  "OPERADOR_LOCAL",
-  "OPERADOR_MOVIL"
+const ROLES_VALIDOS = [
+  "ADMINISTRADOR",
+  "OPERADOR"
 ];
 
 const TIPOS_VEHICULO = [
@@ -13,6 +12,11 @@ const TIPOS_VEHICULO = [
   "CAMION",
   "MOTO",
   "OTRO"
+];
+
+const UBICACIONES_VALIDAS = [
+  "GOMERIA",
+  "MOVIL"
 ];
 
 const ESTADOS_PAGO = [
@@ -43,11 +47,15 @@ function textoOpcional(valor, maximo) {
 }
 
 function idValido(valor) {
-  return (
-    (typeof valor === "number" || typeof valor === "string") &&
-    /^\d+$/.test(String(valor)) &&
-    BigInt(valor) > 0n
-  );
+  try {
+    return (
+      (typeof valor === "number" || typeof valor === "string") &&
+      /^\d+$/.test(String(valor)) &&
+      BigInt(valor) > 0n
+    );
+  } catch {
+    return false;
+  }
 }
 
 function validarImporte(valor) {
@@ -93,6 +101,14 @@ async function obtenerTiposTrabajo(req, res) {
 async function crearVisita(req, res) {
   try {
     const usuario = req.usuario;
+
+    if (!usuario || !ROLES_VALIDOS.includes(usuario.rol)) {
+      return res.status(403).json({
+        ok: false,
+        mensaje: "Rol no autorizado"
+      });
+    }
+
     const {
       ubicacion,
       patente,
@@ -104,13 +120,6 @@ async function crearVisita(req, res) {
       detalles
     } = req.body;
 
-    if (!ROLES.includes(usuario.rol)) {
-      return res.status(403).json({
-        ok: false,
-        mensaje: "Rol no autorizado"
-      });
-    }
-
     if (!TIPOS_VEHICULO.includes(tipo_vehiculo)) {
       return res.status(400).json({
         ok: false,
@@ -118,28 +127,21 @@ async function crearVisita(req, res) {
       });
     }
 
-    // La ubicación de los operadores nunca se toma
-    // del navegador: se determina mediante su rol.
-    let ubicacionFinal;
-
-    if (usuario.rol === "DUENA") {
-      if (!["GOMERIA", "MOVIL"].includes(ubicacion)) {
-        return res.status(400).json({
-          ok: false,
-          mensaje: "La dueña debe seleccionar GOMERIA o MOVIL"
-        });
-      }
-
-      ubicacionFinal = ubicacion;
-    } else if (usuario.rol === "OPERADOR_LOCAL") {
-      ubicacionFinal = "GOMERIA";
-    } else {
-      ubicacionFinal = "MOVIL";
+    // Ambos roles pueden elegir dónde se realizó el trabajo.
+    if (!UBICACIONES_VALIDAS.includes(ubicacion)) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Debe seleccionar GOMERIA o MOVIL"
+      });
     }
 
-    if (!Array.isArray(detalles) ||
-        detalles.length === 0 ||
-        detalles.length > 30) {
+    const ubicacionFinal = ubicacion;
+
+    if (
+      !Array.isArray(detalles) ||
+      detalles.length === 0 ||
+      detalles.length > 30
+    ) {
       return res.status(400).json({
         ok: false,
         mensaje: "La visita debe contener entre 1 y 30 trabajos"
@@ -163,10 +165,12 @@ async function crearVisita(req, res) {
       });
     }
 
-    if (id_cliente !== undefined &&
-        id_cliente !== null &&
-        id_cliente !== "" &&
-        !idValido(id_cliente)) {
+    if (
+      id_cliente !== undefined &&
+      id_cliente !== null &&
+      id_cliente !== "" &&
+      !idValido(id_cliente)
+    ) {
       return res.status(400).json({
         ok: false,
         mensaje: "El cliente indicado no es válido"
@@ -277,7 +281,7 @@ async function listarVisitas(req, res) {
 
     if (
       ubicacion !== null &&
-      !["GOMERIA", "MOVIL"].includes(ubicacion)
+      !UBICACIONES_VALIDAS.includes(ubicacion)
     ) {
       return res.status(400).json({
         ok: false,

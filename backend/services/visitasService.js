@@ -166,7 +166,7 @@ async function listarVisitas(usuario, filtros) {
      ) detalles ON TRUE
 
      WHERE
-       ($1::varchar = 'DUENA' OR v.id_usuario = $2)
+       ($1::varchar = 'ADMINISTRADOR' OR v.id_usuario = $2)
        AND ($3::varchar IS NULL OR v.ubicacion = $3)
 
      ORDER BY v.fecha_hora DESC
@@ -373,11 +373,10 @@ async function obtenerResumenDashboard(fecha) {
        ON vd.id_visita = v.id
 
      WHERE u.activo = TRUE
-       AND u.rol IN (
-         'DUENA',
-         'OPERADOR_LOCAL',
-         'OPERADOR_MOVIL'
-       )
+      AND u.rol IN (
+        'ADMINISTRADOR',
+        'OPERADOR'
+      )
 
      GROUP BY
        u.id,

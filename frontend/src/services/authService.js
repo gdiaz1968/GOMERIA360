@@ -36,3 +36,33 @@ export function obtenerUsuario() {
 
   return usuario ? JSON.parse(usuario) : null;
 }
+
+
+export async function cambiarPassword(passwordActual, passwordNueva) {
+  const token = localStorage.getItem("gomeria360_token");
+
+  const respuesta = await fetch(`${API_URL}/api/auth/cambiar-password`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      passwordActual,
+      passwordNueva,
+    }),
+  });
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok || !datos.ok) {
+    throw new Error(datos.mensaje || "No se pudo cambiar la contraseña");
+  }
+
+  localStorage.setItem(
+    "gomeria360_usuario",
+    JSON.stringify(datos.usuario)
+  );
+
+  return datos.usuario;
+}
